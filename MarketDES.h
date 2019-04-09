@@ -24,6 +24,7 @@ private:
 public:
     vector<double> serviceTimes; // where I put my times
     void addEvent(EventStruct &event);
+    void onArrival(EventStruct event);
     void runSim();
 };
 
