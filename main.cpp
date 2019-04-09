@@ -10,6 +10,22 @@
 
 using namespace std;
 
+//Didn't know quite where to put this...
+void printStats(vector<double>& serviceTimes, string label) {
+     cout << label << "\n";
+     cout << serviceTimes.size() << "vector size\n";
+     double averageTime = 0;
+     for(double time : serviceTimes)
+         averageTime += time;
+
+     averageTime /= serviceTimes.size();
+     sort(serviceTimes.begin(), serviceTimes.end());
+     cout << "10th %ile " << serviceTimes[(serviceTimes.size() * 0.1)] << endl;
+     cout << "50th %ile " << serviceTimes[(serviceTimes.size() * 0.5)] << endl;
+     cout << "90th %ile " << serviceTimes[(serviceTimes.size() * 0.9)] << endl;
+     cout << "Average Service Time : " << averageTime  << " minutes" << endl;
+}
+
 int main(int argc, char* argv[]) {
     if (argc < 5) {
         cout << "Not enough arguments...\n";
@@ -24,6 +40,7 @@ int main(int argc, char* argv[]) {
     // int randomNumSeed = 34543;
     double totalMinutes = 12.0 * 60.0;
     int numCustomers = int (totalMinutes * customerArrivalRate);
+    cout << numCustomers << "numCustomers \n";
     double totalSeconds = totalMinutes * 60;
     double maxServiceTimeSeconds = maxServiceTime * 60;
     srand(randomNumSeed);
@@ -38,19 +55,9 @@ int main(int argc, char* argv[]) {
             myEvent.event = ARRIVAL;
             BankSim.addEvent(myEvent);
         }
-        // cout << "Running...\n" << endl;
         BankSim.runSim();
-        vector<double> bankTimes = BankSim.getServiceTimes();
-        // cout << "Bank Service Times in Minutes: \n";
-        // double averageTime = 0;
-        // for(double d : bankTimes)
-        //     averageTime += d;
-        // averageTime /= bankTimes.size();
-        // cout << "10th %ile " << bankTimes[(numCustomers * 0.1)] << endl;
-        // cout << "50th %ile " << bankTimes[(numCustomers * 0.5)] << endl;
-        // cout << "90th %ile " << bankTimes[(numCustomers * 0.9)] << endl;
-        // cout << "Average Service Time : " << averageTime/60 << " minutes" << endl;
-        cout << bankTimes[(numCustomers * 0.9)] << endl;
+        printStats(BankSim.serviceTimes, "Bank Wait Times:");
+        cout << BankSim.serviceTimes[(numCustomers * 0.9)] << endl;
     } else if (which == "-m"){
         MarketDES MarketSim;
         for (int i = 0; i < numCustomers; i++) {
@@ -60,18 +67,8 @@ int main(int argc, char* argv[]) {
             myEvent.event = ARRIVAL;
             MarketSim.addEvent(myEvent);
         }
-        // cout << "Running...\n" << endl;
         MarketSim.runSim();
-        // cout << "\nSupermarket Service Times in Minutes: \n";
-        // double averageTime = 0;
-        // for(double d : MarketSim.serviceTimes)
-        //     averageTime += d;
-        // averageTime /= MarketSim.serviceTimes.size();
-        // sort(MarketSim.serviceTimes.begin(), MarketSim.serviceTimes.end());
-        // cout << "10th %ile " << MarketSim.serviceTimes[(numCustomers * 0.1)] / 60 << endl;
-        // cout << "50th %ile " << MarketSim.serviceTimes[(numCustomers * 0.5)] / 60 << endl;
-        // cout << "90th %ile " << MarketSim.serviceTimes[(numCustomers * 0.9)] / 60 << endl;
-        // cout << "Average Service Time : " << averageTime/60 << " minutes" << endl;
+        printStats(MarketSim.serviceTimes, "Market Wait Times:");
         cout << MarketSim.serviceTimes[(numCustomers * 0.9)] << endl;
     } else {
         cout << "E R R O R  F O O L" << endl;

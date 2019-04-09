@@ -24,8 +24,7 @@ void MarketDES::onArrival(EventStruct nextEvent) {
     nextEvent.line = shortestLine; // put customer in the shortest line
 
     // adding customer duration to line wait
-    nextEvent.totalServiceTime = checkers.at(shortestLine) + nextEvent.duration;
-    serviceTimes.push_back(nextEvent.totalServiceTime);
+    serviceTimes.push_back(checkers.at(shortestLine) + nextEvent.duration);
 
     // adding to the wait time for that checker's line
     checkers.at(shortestLine) += nextEvent.duration;
