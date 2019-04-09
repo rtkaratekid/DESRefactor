@@ -29,8 +29,9 @@ public:
     vector<double> getServiceTimes();
     void addEvent(EventStruct &event);
     void addBankQueueCustomer(EventStruct &event);
+    void onArrival(EventStruct nextEvent);
+    void onDeparture(EventStruct nextEvent);
     void runSim();
-
 };
 
 #endif //DISCRETESIMULATION_BANKDES_H
