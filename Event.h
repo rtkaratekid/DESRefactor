@@ -20,13 +20,8 @@ typedef struct {
     double eventTime; // time event is to be completed
     double duration; // total customer service time
     double arrivalTime;
-    double totalServiceTime;
-    double waitTime;
-    int customerNumber; // to be able to keep track of customer through the day
     int line; // for supermarket use only
-
     EventType event;
-
 } EventStruct;
 
 struct compareEventTime {

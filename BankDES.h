@@ -25,12 +25,12 @@ private:
     double currentTime = 0;
     int tellersAvailable = 6; // we have 6 tellers arbitrarily
 public:
-    vector<EventStruct> servedCustomers;
-    vector<double> getServiceTimes();
+    vector<double> serviceTimes;
     void addEvent(EventStruct &event);
     void addBankQueueCustomer(EventStruct &event);
+    void onArrival(EventStruct nextEvent);
+    void onDeparture(EventStruct nextEvent);
     void runSim();
-
 };
 
 #endif //DISCRETESIMULATION_BANKDES_H

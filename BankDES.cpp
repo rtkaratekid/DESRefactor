@@ -12,7 +12,36 @@ void BankDES::addEvent(EventStruct &event) {
 // add a bank queue customer (not really an event)
 void BankDES::addBankQueueCustomer(EventStruct &event) {
     bankQueue.push(event);
-    event.waitTime = currentTime;
+}
+
+void BankDES::onArrival(EventStruct nextEvent) {
+    if (tellersAvailable) {
+        // enter departure event in eventQueue
+        nextEvent.eventTime = currentTime + nextEvent.duration;
+//        nextEvent.totalServiceTime = (nextEvent.eventTime - nextEvent.arrivalTime) / 60; // divide by 60 to get minutes
+        serviceTimes.push_back((nextEvent.eventTime - nextEvent.arrivalTime) / 60);
+        nextEvent.event = DEPARTURE;
+        addEvent(nextEvent);
+        tellersAvailable--;
+    } else {
+        // no tellers available, put customer in bank queue
+        addBankQueueCustomer(nextEvent);
+    }
+}
+
+void BankDES::onDeparture(EventStruct nextEvent) {
+    if (!bankQueue.empty()) {
+        EventStruct nextCustomer = bankQueue.front(); // getting the next customer from the bank queue
+        bankQueue.pop();
+        nextCustomer.eventTime = currentTime + nextEvent.duration;
+
+        // calculate total service time, including waits
+        serviceTimes.push_back((nextEvent.eventTime - nextEvent.arrivalTime) / 60);
+        nextCustomer.event = DEPARTURE;
+        addEvent(nextCustomer);
+    } else {
+        tellersAvailable++;
+    }
 }
 
 // run the simulation
@@ -23,50 +52,14 @@ void BankDES::runSim() {
         eventQueue.pop();
         switch (nextEvent.event) {
             case ARRIVAL:
-                if (tellersAvailable) {
-                    // enter departure event in eventQueue
-                    nextEvent.eventTime = currentTime + nextEvent.duration;
-                    nextEvent.totalServiceTime = (nextEvent.eventTime - nextEvent.arrivalTime) / 60; // divide by 60 to get minutes
-
-                    nextEvent.event = DEPARTURE;
-                    addEvent(nextEvent);
-                    tellersAvailable--;
-                } else {
-                    // no tellers available, put customer in bank queue
-                    addBankQueueCustomer(nextEvent);
-                }
+                onArrival(nextEvent);
                 break;
             case DEPARTURE:
-                if (!bankQueue.empty()) {
-                    // pushing back into my served customers
-                    servedCustomers.push_back(nextEvent);
-
-                    EventStruct nextCustomer = bankQueue.front(); // getting the next customer from the bank queue
-                    bankQueue.pop();
-                    nextCustomer.eventTime = currentTime + nextEvent.duration;
-
-                    // calculate total service time, including waits
-                    nextCustomer.totalServiceTime = ((currentTime + nextCustomer.duration) - nextCustomer.arrivalTime) / 60;
-                    nextCustomer.event = DEPARTURE;
-                    addEvent(nextCustomer);
-                } else {
-                    // pushing back into my served customers
-                    servedCustomers.push_back(nextEvent);
-                    tellersAvailable++;
-                }
+                onDeparture(nextEvent);
                 break;
             default:
                 cout << "ERROR: Should never get here! " << endl;
         }
     }
-}
-
-// probably could've done this a bit better
-vector<double> BankDES::getServiceTimes() {
-    vector<double> ret;
-    for(EventStruct e : servedCustomers) {
-        ret.push_back(e.totalServiceTime);
-    }
-    sort(ret.begin(), ret.end());
-    return ret;
+    sort(serviceTimes.begin(), serviceTimes.end());
 }
